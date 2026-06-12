@@ -1,0 +1,25 @@
+{
+  "name": "web-framework-project",
+  "version": "1.0.0",
+  "description": "Initial workspace for a university web framework project.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pained-chicken/web-framework-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/pained-chicken/web-framework-project/issues"
+  },
+  "homepage": "https://github.com/pained-chicken/web-framework-project#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
