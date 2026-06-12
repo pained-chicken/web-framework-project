@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require("path");
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const connectDb = require("./config/db");
@@ -14,10 +15,10 @@ connectDb();
 //레이아웃과 뷰 엔진 설정
 app.use(expressLayouts);
 app.set("view engine", "ejs");
-app.set("views", "./views");
+app.set("views", path.join(__dirname, "views"));
 
 // 정적 파일
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
