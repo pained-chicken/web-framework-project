@@ -1,9 +1,11 @@
 {
   "name": "web-framework-project",
   "version": "1.0.0",
-  "description": "Initial workspace for a university web framework project.",
-  "main": "app.js",
+  "description": "시설 예약 시스템 (Facility Reservation) — Express 5 + EJS + MongoDB, 관리자/일반유저 권한 분리.",
+  "main": "src/app.js",
   "scripts": {
+    "start": "node src/app.js",
+    "seed:admin": "node scripts/seedAdmin.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

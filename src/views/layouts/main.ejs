@@ -1,11 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== "undefined" ? title : "하루예약" %></title>
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-    <%- body %>
+
+<%- include("../partials/header") %>
+
+<%- body %>
+
+<% if (typeof hideFooter === "undefined" || !hideFooter) { %>
+<%- include("../partials/footer") %>
+<% } %>
+
+<script src="/js/variableProximity.js"></script>
 </body>
 </html>

@@ -1,0 +1,29 @@
+<% var _active = (typeof active !== "undefined") ? active : ""; %>
+<header class="user-header">
+  <div class="container">
+    <a class="brand" href="/"><span class="brand-mark">하</span> 하루예약</a>
+    <nav class="main-nav" aria-label="주요 메뉴">
+      <a href="/"<%= _active === "facilities" ? ' aria-current="page"' : "" %>>시설</a>
+      <% if (user) { %>
+        <a href="/my/reservations"<%= _active === "my" ? ' aria-current="page"' : "" %>>내 예약</a>
+      <% } %>
+    </nav>
+    <div class="header-spacer"></div>
+    <div class="header-auth">
+      <% if (!user) { %>
+        <a class="text-link" href="/login">로그인</a>
+        <a class="btn btn--primary btn--sm" href="/register">회원가입</a>
+      <% } else { %>
+        <% if (user.role === "admin") { %>
+          <a class="text-link" href="/admin">관리자</a>
+        <% } %>
+        <span class="header-user">
+          <span class="avatar"><%= user.username.charAt(0).toUpperCase() %></span> <%= user.username %>
+        </span>
+        <form action="/logout" method="POST" class="inline-form">
+          <button type="submit" class="text-link">로그아웃</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</header>
