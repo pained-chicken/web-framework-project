@@ -1,0 +1,52 @@
+<header class="admin-topbar">
+  <div>
+    <div class="crumb">관리자</div>
+    <h1>시설 관리</h1>
+  </div>
+  <div class="spacer"></div>
+  <a class="btn btn--primary btn--sm" href="/admin/facilities/new">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+    시설 추가
+  </a>
+</header>
+
+<main class="admin-content">
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr><th>이름</th><th>카테고리</th><th>정원</th><th>운영시간</th><th>활성</th><th class="nowrap">관리</th></tr>
+        </thead>
+        <tbody>
+          <% if (facilities.length === 0) { %>
+          <tr><td colspan="6" class="muted" style="text-align:center;padding:24px">등록된 시설이 없습니다.</td></tr>
+          <% } %>
+          <% facilities.forEach(function (f) { %>
+          <tr>
+            <td class="cell-strong"><%= f.name %></td>
+            <td><span class="badge badge--cat"><%= catLabel(f.category) %></span></td>
+            <td class="cell-mono"><%= f.capacity %>명</td>
+            <td class="cell-mono"><%= f.openTime %> ~ <%= f.closeTime %></td>
+            <td>
+              <% if (f.isActive) { %>
+              <span class="badge badge--approved">활성</span>
+              <% } else { %>
+              <span class="badge badge--muted">비활성</span>
+              <% } %>
+            </td>
+            <td>
+              <div class="row-actions">
+                <a class="btn btn--ghost btn--sm" href="/admin/facilities/<%= f._id %>/edit">수정</a>
+                <form action="/admin/facilities/<%= f._id %>" method="POST" class="inline-form" onsubmit="return confirm('이 시설을 삭제할까요? 되돌릴 수 없습니다.')">
+                  <input type="hidden" name="_method" value="DELETE" />
+                  <button type="submit" class="btn btn--danger btn--sm">삭제</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>

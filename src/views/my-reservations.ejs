@@ -1,0 +1,54 @@
+<main class="container">
+  <div class="page-head">
+    <h1 class="page-title vp-text" data-from="'wght' 600" data-to="'wght' 900" data-radius="100" data-falloff="gaussian">내 예약</h1>
+    <p class="page-sub">신청한 예약의 상태를 확인하고 관리하세요.</p>
+  </div>
+
+  <% if (reservations.length > 0) { %>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>시설명</th>
+            <th>날짜</th>
+            <th>시간</th>
+            <th>상태</th>
+            <th>거절 사유</th>
+            <th class="nowrap">관리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% reservations.forEach(function (r) { %>
+          <tr>
+            <td class="cell-strong"><%= r.facility ? r.facility.name : "(삭제된 시설)" %></td>
+            <td class="cell-mono"><%= r.date %></td>
+            <td class="cell-mono"><%= r.startTime %> ~ <%= r.endTime %></td>
+            <td><span class="badge <%= statusBadge(r.status) %>"><%= statusLabel(r.status) %></span></td>
+            <td class="<%= r.status === "rejected" && r.rejectReason ? "reason-text" : "muted" %>">
+              <%= r.status === "rejected" && r.rejectReason ? r.rejectReason : "—" %>
+            </td>
+            <td>
+              <% if (["pending", "approved"].includes(r.status)) { %>
+              <form action="/reservations/<%= r._id %>" method="POST" class="inline-form" onsubmit="return confirm('예약을 취소할까요?')">
+                <input type="hidden" name="_method" value="DELETE" />
+                <button type="submit" class="btn btn--danger btn--sm">취소</button>
+              </form>
+              <% } else { %>
+              <span class="muted">—</span>
+              <% } %>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <% } else { %>
+  <div class="empty-state">
+    <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <strong>예약 내역이 없습니다.</strong>
+    원하는 시설을 찾아 첫 예약을 신청해 보세요.
+  </div>
+  <% } %>
+</main>
