@@ -1,0 +1,100 @@
+<%
+  var tabs = [
+    { v: "pending", l: "대기", c: counts.pending },
+    { v: "approved", l: "승인", c: counts.approved },
+    { v: "rejected", l: "거절", c: counts.rejected },
+    { v: "cancelled", l: "취소", c: counts.cancelled },
+    { v: "all", l: "전체", c: counts.all },
+  ];
+%>
+<header class="admin-topbar">
+  <div>
+    <div class="crumb">관리자</div>
+    <h1>예약 관리</h1>
+  </div>
+</header>
+
+<main class="admin-content">
+  <% if (error) { %>
+  <div class="alert alert--error" style="margin-bottom:20px">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+    <span><%= error %></span>
+  </div>
+  <% } %>
+
+  <!-- 상태 필터 탭 (GET ?status=) -->
+  <nav class="tabs" aria-label="상태 필터">
+    <% tabs.forEach(function (t) { %>
+    <a class="tab <%= status === t.v ? "is-active" : "" %>" href="?status=<%= t.v %>"<%= status === t.v ? ' aria-current="page"' : "" %>><%= t.l %> <span class="count"><%= t.c %></span></a>
+    <% }); %>
+  </nav>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr><th>신청자</th><th>시설</th><th>날짜</th><th>시간</th><th>목적</th><th>상태</th><th class="nowrap">처리</th></tr>
+        </thead>
+        <tbody>
+          <% if (reservations.length === 0) { %>
+          <tr><td colspan="7" class="muted" style="text-align:center;padding:24px">해당하는 예약이 없습니다.</td></tr>
+          <% } %>
+          <% reservations.forEach(function (r) { %>
+          <tr id="row-<%= r._id %>">
+            <td class="cell-strong"><%= r.user ? r.user.username : "-" %></td>
+            <td><%= r.facility ? r.facility.name : "(삭제된 시설)" %></td>
+            <td class="cell-mono"><%= r.date %></td>
+            <td class="cell-mono"><%= r.startTime %> ~ <%= r.endTime %></td>
+            <td><%= r.purpose || "—" %></td>
+            <td><span class="badge <%= statusBadge(r.status) %>"><%= statusLabel(r.status) %></span></td>
+            <td>
+              <% if (r.status === "pending") { %>
+              <div class="row-actions">
+                <form action="/admin/reservations/<%= r._id %>/approve" method="POST" class="inline-form">
+                  <input type="hidden" name="_method" value="PUT" />
+                  <button class="btn btn--approve btn--sm">승인</button>
+                </form>
+                <button type="button" class="btn btn--reject btn--sm" data-reject="<%= r._id %>">거절</button>
+              </div>
+              <% } else { %>
+              <span class="muted">—</span>
+              <% } %>
+            </td>
+          </tr>
+          <% if (r.status === "pending") { %>
+          <tr class="reject-row" id="reject-<%= r._id %>" hidden>
+            <td colspan="7">
+              <form action="/admin/reservations/<%= r._id %>/reject" method="POST" class="reject-inline">
+                <input type="hidden" name="_method" value="PUT" />
+                <span class="label nowrap">거절 사유</span>
+                <input class="input" type="text" name="rejectReason" placeholder="예: 정기 점검 시간과 겹칩니다." required style="max-width:420px" />
+                <button type="submit" class="btn btn--reject btn--sm">거절 확정</button>
+                <button type="button" class="btn btn--ghost btn--sm" data-cancel="<%= r._id %>">닫기</button>
+              </form>
+            </td>
+          </tr>
+          <% } %>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- 인라인 거절 사유 토글 -->
+<script>
+  (function () {
+    document.querySelectorAll("[data-reject]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var row = document.getElementById("reject-" + btn.dataset.reject);
+        if (row) { row.hidden = false; var inp = row.querySelector("input[name=rejectReason]"); if (inp) inp.focus(); }
+      });
+    });
+    document.querySelectorAll("[data-cancel]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var row = document.getElementById("reject-" + btn.dataset.cancel);
+        if (row) row.hidden = true;
+      });
+    });
+  })();
+</script>
