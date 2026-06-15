@@ -1,0 +1,94 @@
+<main class="container">
+  <p class="page-sub" style="margin-top:24px"><a class="text-link" href="/">← 시설 목록</a></p>
+
+  <div class="detail-grid">
+    <!-- 좌: 시설 정보 + 그날 예약 현황 -->
+    <div>
+      <div class="detail-banner"><span class="ph">facility image</span></div>
+      <div class="detail-header">
+        <span class="badge badge--cat" style="align-self:flex-start"><%= catLabel(facility.category) %></span>
+        <h1 class="detail-title vp-text" data-from="'wght' 600" data-to="'wght' 900" data-radius="110" data-falloff="gaussian"><%= facility.name %></h1>
+        <div class="detail-metarow">
+          <span class="row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 정원 <%= facility.capacity %>명</span>
+          <span class="row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 운영 <%= facility.openTime %>~<%= facility.closeTime %></span>
+        </div>
+        <% if (facility.description) { %>
+        <p class="detail-desc"><%= facility.description %></p>
+        <% } %>
+      </div>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:28px 0" />
+
+      <!-- 날짜 선택 (변경 시 GET ?date= 로 해당 날짜 현황 조회) -->
+      <form action="/facilities/<%= facility._id %>" method="GET" class="flex-between" style="margin-bottom:18px" id="dateForm">
+        <h2 class="section-title">예약 현황</h2>
+        <label class="field" style="flex-direction:row;align-items:center;gap:10px;margin:0">
+          <span class="label nowrap">날짜</span>
+          <input class="input" type="date" name="date" value="<%= date %>" style="width:auto" onchange="document.getElementById('dateForm').submit()" />
+        </label>
+      </form>
+
+      <!-- 점유 시간대 타임라인 -->
+      <div class="timeline">
+        <% reservations.forEach(function (r) { %>
+        <div class="slot">
+          <span class="time"><%= r.startTime %> ~ <%= r.endTime %></span>
+          <span class="who">예약자 · <%= r.user ? r.user.username : "-" %></span>
+          <span class="badge <%= statusBadge(r.status) %>"><%= statusLabel(r.status) %></span>
+        </div>
+        <% }); %>
+
+        <% if (reservations.length === 0) { %>
+        <div class="slot slot--free">이 날짜는 예약 가능합니다 · 원하는 시간을 신청하세요</div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- 우: 예약 신청 폼 (로그인 시만 노출) -->
+    <aside>
+      <div class="card reserve-box">
+        <% if (user) { %>
+        <h3 class="section-title">예약 신청</h3>
+        <p class="price-note"><%= date %> · <%= facility.name %></p>
+
+        <% if (error) { %>
+        <div class="alert alert--error" style="margin-bottom:16px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span><%= error %></span>
+        </div>
+        <% } %>
+
+        <form action="/reservations" method="POST" class="form">
+          <input type="hidden" name="facilityId" value="<%= facility._id %>" />
+          <input type="hidden" name="date" value="<%= date %>" />
+          <div class="field-row">
+            <div class="field">
+              <label for="startTime">시작 시간<span class="req">*</span></label>
+              <input class="input" type="time" id="startTime" name="startTime" value="<%= form.startTime || "" %>" required />
+            </div>
+            <div class="field">
+              <label for="endTime">종료 시간<span class="req">*</span></label>
+              <input class="input" type="time" id="endTime" name="endTime" value="<%= form.endTime || "" %>" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="purpose">사용 목적<span class="req">*</span></label>
+            <input class="input" type="text" id="purpose" name="purpose" value="<%= form.purpose || "" %>" placeholder="예: 팀 프로젝트 회의" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--block btn--lg">예약 신청</button>
+          <p class="hint" style="text-align:center">신청 후 관리자 승인 시 확정됩니다.</p>
+        </form>
+        <% } else { %>
+        <h3 class="section-title">예약하기</h3>
+        <p class="price-note"><%= date %> · <%= facility.name %></p>
+        <div class="login-prompt">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8b94a7" stroke-width="1.7" style="margin:0 auto 12px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <p>예약하려면 로그인하세요.</p>
+          <a class="btn btn--primary btn--block btn--lg" href="/login">로그인</a>
+          <p class="hint" style="text-align:center;margin-top:10px">계정이 없으신가요? <a href="/register" style="color:var(--point);font-weight:700">회원가입</a></p>
+        </div>
+        <% } %>
+      </div>
+    </aside>
+  </div>
+</main>

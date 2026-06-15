@@ -1,22 +1,88 @@
-      <!-- 상단 소개글, 히어로 이미지 -->
-      <div class="top">
-        <h1 class="top-heading">하루하루 스터디</h1>
-        <p class="top-body">매일 1시간씩 공부한 내용을 기록하고 있습니다.</p>
+<%
+  var chipDefs = [
+    { v: "all", l: "전체" },
+    { v: "study", l: "스터디룸" },
+    { v: "meeting", l: "회의실" },
+    { v: "sports", l: "체육시설" },
+    { v: "etc", l: "기타" },
+  ];
+  var qParam = q ? ("&q=" + encodeURIComponent(q)) : "";
+%>
+
+<!-- 홈 히어로 — Variable Proximity (커서 근접 시 글자 굵기 변화) -->
+<section class="hero">
+  <div class="container">
+    <span class="hero-eyebrow"><span class="dot"></span> 공간 예약, 1분이면 충분해요</span>
+    <h1 class="vp-hero"
+        data-from="'wght' 300"
+        data-to="'wght' 900"
+        data-radius="150"
+        data-falloff="gaussian">필요한 공간을 하루예약</h1>
+    <p class="hero-sub">스터디룸부터 회의실, 체육시설까지. 실시간 예약 현황을 확인하고 원하는 시간에 바로 신청하세요.</p>
+    <div class="hero-cta">
+      <a class="btn btn--primary btn--lg" href="#facilities">시설 둘러보기</a>
+      <% if (user) { %>
+        <a class="btn btn--ghost btn--lg" href="/my/reservations">내 예약 보기</a>
+      <% } else { %>
+        <a class="btn btn--ghost btn--lg" href="/login">로그인</a>
+      <% } %>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num"><%= facilityCount %></div><div class="lab">등록 시설</div></div>
+      <div class="hero-stat"><div class="num"><%= todayCount %></div><div class="lab">오늘 예약</div></div>
+      <div class="hero-stat"><div class="num">24시간</div><div class="lab">언제든 신청</div></div>
+    </div>
+  </div>
+</section>
+
+<main class="container" id="facilities">
+  <div class="page-head">
+    <h2 class="page-title vp-text" data-from="'wght' 600" data-to="'wght' 900" data-radius="100" data-falloff="gaussian">시설 목록</h2>
+    <p class="page-sub">예약 가능한 공간을 검색하고 카테고리로 필터링하세요.</p>
+  </div>
+
+  <!-- 검색 + 카테고리 필터 (GET /?q=&category=) -->
+  <form class="toolbar" action="/" method="GET" role="search">
+    <label class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <span class="sr-only">시설 검색</span>
+      <input type="search" name="q" value="<%= q %>" placeholder="시설 이름으로 검색…" />
+    </label>
+    <input type="hidden" name="category" value="<%= category %>" />
+    <div class="filter-chips" role="group" aria-label="카테고리 필터">
+      <% chipDefs.forEach(function (c) { %>
+        <a class="chip <%= category === c.v ? "is-active" : "" %>"
+           href="/?category=<%= c.v %><%= qParam %>"
+           aria-pressed="<%= category === c.v ? "true" : "false" %>"><%= c.l %></a>
+      <% }); %>
+    </div>
+  </form>
+
+  <!-- 시설 카드 그리드 -->
+  <div class="facility-grid" id="facilityGrid">
+    <% facilities.forEach(function (f) { %>
+    <article class="facility-card" data-cat="<%= f.category %>">
+      <div class="facility-thumb">
+        <span class="badge badge--cat"><%= catLabel(f.category) %></span>
+        <span class="ph">facility image</span>
       </div>
+      <div class="facility-body">
+        <h3 class="facility-name"><%= f.name %></h3>
+        <div class="facility-meta">
+          <span class="row"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg> 정원 <%= f.capacity %>명</span>
+          <span class="row"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 운영 <%= f.openTime %>~<%= f.closeTime %></span>
+        </div>
+        <a class="btn btn--primary btn--block" href="/facilities/<%= f._id %>">예약하기</a>
+      </div>
+    </article>
+    <% }); %>
+  </div>
 
-      <img src="/img/top-hero.jpg" alt="노트에 기록하는 모습" class="hero-image" width="840" height="400">
-
-      <!-- 최근 게시물 -->
-      <section class="articles">
-        <h2 class="articles-heading">최근 게시물</h2>
-        <ul class="article-ul">
-          <% data.forEach(post => { %>
-            <li>
-              <a href="/post/<%= post._id %>">
-                <span><%= post.title %></span>
-                <span class="article-list-date"><%= post.createdAt.toDateString() %></span>
-              </a>
-            </li>
-            <% }) %>
-        </ul>
-      </section>
+  <% if (facilities.length === 0) { %>
+  <div class="empty-state">
+    <div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+    <strong>등록된 시설이 없습니다.</strong>
+    조건에 맞는 시설을 찾지 못했어요.
+  </div>
+  <% } %>
+</main>

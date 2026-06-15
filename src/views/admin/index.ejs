@@ -1,0 +1,69 @@
+<header class="admin-topbar">
+  <div>
+    <div class="crumb">관리자</div>
+    <h1>대시보드</h1>
+  </div>
+  <div class="spacer"></div>
+  <span class="header-user"><span class="avatar"><%= user.username.charAt(0).toUpperCase() %></span> <%= user.username %></span>
+</header>
+
+<main class="admin-content">
+  <!-- 요약 카드 3개 -->
+  <div class="summary-cards">
+    <div class="card summary-card">
+      <div class="ico ico--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <div class="num"><%= pendingCount %></div>
+      <div class="lab">대기중 예약</div>
+    </div>
+    <div class="card summary-card">
+      <div class="ico ico--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg></div>
+      <div class="num"><%= facilityCount %></div>
+      <div class="lab">전체 시설</div>
+    </div>
+    <div class="card summary-card">
+      <div class="ico ico--green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="num"><%= todayCount %></div>
+      <div class="lab">오늘 예약</div>
+    </div>
+  </div>
+
+  <!-- 최근 대기 예약 -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2>최근 대기 예약</h2>
+      <a class="btn btn--ghost btn--sm" href="/admin/reservations?status=pending">전체 보기</a>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr><th>신청자</th><th>시설</th><th>날짜</th><th>시간</th><th class="nowrap">처리</th></tr>
+        </thead>
+        <tbody>
+          <% if (pendingReservations.length === 0) { %>
+          <tr><td colspan="5" class="muted" style="text-align:center;padding:24px">대기중인 예약이 없습니다.</td></tr>
+          <% } %>
+          <% pendingReservations.forEach(function (r) { %>
+          <tr>
+            <td class="cell-strong"><%= r.user ? r.user.username : "-" %></td>
+            <td><%= r.facility ? r.facility.name : "(삭제된 시설)" %></td>
+            <td class="cell-mono"><%= r.date %></td>
+            <td class="cell-mono"><%= r.startTime %> ~ <%= r.endTime %></td>
+            <td>
+              <div class="row-actions">
+                <form action="/admin/reservations/<%= r._id %>/approve" method="POST" class="inline-form">
+                  <input type="hidden" name="_method" value="PUT" />
+                  <button class="btn btn--approve btn--sm">승인</button>
+                </form>
+                <form action="/admin/reservations/<%= r._id %>/reject" method="POST" class="inline-form">
+                  <input type="hidden" name="_method" value="PUT" />
+                  <button class="btn btn--reject btn--sm">거절</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
