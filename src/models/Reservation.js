@@ -43,7 +43,8 @@ const reservationSchema = new mongoose.Schema({
 });
 
 /**
- * 시간대 충돌(overlap) 검사 — 같은 시설·날짜에서 승인된 예약과 겹치는 첫 건 반환.
+ * 시간대 충돌(overlap) 검사 — 같은 시설·날짜에서 겹치는 승인된 예약이 있으면 한 건 반환.
+ * (정렬이 없어 어떤 건이 반환될지는 비결정적이며, 충돌 "존재 여부" 판단에만 사용한다.)
  * 승인된 예약만 자리를 점유한다. ignoreId로 자기 자신을 제외(승인 재검사 시).
  */
 reservationSchema.statics.findConflict = function ({

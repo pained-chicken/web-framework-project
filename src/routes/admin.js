@@ -4,8 +4,10 @@ const router = express.Router();
 const { checkAdmin } = require("../middleware/auth");
 const admin = require("../controllers/adminController");
 
-// 모든 관리자 라우트는 admin 권한 필요
-router.use(checkAdmin);
+// 모든 관리자 라우트(/admin*)는 admin 권한 필요.
+// 경로를 한정하지 않으면 "/"에 마운트된 이 라우터가 미매칭 요청까지 가로채
+// 404 핸들러 도달을 막으므로 "/admin" 으로 스코프를 제한한다.
+router.use("/admin", checkAdmin);
 
 /* 대시보드 */
 router.get("/admin", admin.dashboard);
