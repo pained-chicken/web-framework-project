@@ -31,7 +31,12 @@ const postLogin = asyncHandler(async (req, res) => {
     { id: user._id, role: user.role, username: user.username },
     jwtSecret
   );
-  res.cookie("token", token, { httpOnly: true });
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 24 * 60 * 60 * 1000, // 1일
+  });
   res.redirect(user.role === "admin" ? "/admin" : "/");
 });
 
