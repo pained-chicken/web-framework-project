@@ -122,13 +122,12 @@ const approveReservation = asyncHandler(async (req, res) => {
   if (!reservation) return res.redirect("/admin/reservations");
 
   // 승인 시 overlap 재검사 (자기 자신 제외)
-  const conflict = await Reservation.findOne({
+  const conflict = await Reservation.findConflict({
     facility: reservation.facility,
     date: reservation.date,
-    status: "approved",
-    _id: { $ne: reservation._id },
-    startTime: { $lt: reservation.endTime },
-    endTime: { $gt: reservation.startTime },
+    startTime: reservation.startTime,
+    endTime: reservation.endTime,
+    ignoreId: reservation._id,
   });
   if (conflict) {
     const msg = encodeURIComponent(

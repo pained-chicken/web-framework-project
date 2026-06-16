@@ -28,12 +28,11 @@ const createReservation = asyncHandler(async (req, res) => {
   }
 
   // 시간대 충돌 검사: 승인된 예약만 자리를 점유
-  const conflict = await Reservation.findOne({
+  const conflict = await Reservation.findConflict({
     facility: facilityId,
     date,
-    status: "approved",
-    startTime: { $lt: endTime },
-    endTime: { $gt: startTime },
+    startTime,
+    endTime,
   });
   if (conflict) {
     return fail("이미 예약된 시간대입니다. 다른 시간을 선택해 주세요.");
