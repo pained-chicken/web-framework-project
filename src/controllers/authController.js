@@ -78,7 +78,12 @@ const postRegister = asyncHandler(async (req, res) => {
 
 /** POST /logout */
 const logout = (req, res) => {
-  res.clearCookie("token");
+  // 쿠키를 확실히 제거하려면 설정 시와 동일한 옵션을 넘겨야 한다.
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
   res.redirect("/");
 };
 
