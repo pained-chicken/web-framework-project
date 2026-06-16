@@ -31,7 +31,12 @@ const postLogin = asyncHandler(async (req, res) => {
     { id: user._id, role: user.role, username: user.username },
     jwtSecret
   );
-  res.cookie("token", token, { httpOnly: true });
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 24 * 60 * 60 * 1000, // 1일
+  });
   res.redirect(user.role === "admin" ? "/admin" : "/");
 });
 
@@ -73,7 +78,12 @@ const postRegister = asyncHandler(async (req, res) => {
 
 /** POST /logout */
 const logout = (req, res) => {
-  res.clearCookie("token");
+  // 쿠키를 확실히 제거하려면 설정 시와 동일한 옵션을 넘겨야 한다.
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
   res.redirect("/");
 };
 

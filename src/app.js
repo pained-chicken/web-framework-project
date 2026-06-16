@@ -51,6 +51,25 @@ app.use((req, res, next) => {
 app.use("/", require("./routes/main"));
 app.use("/", require("./routes/admin"));
 
+// 404 — 위 라우트에 안 잡힌 요청
+app.use((req, res) => {
+  res.status(404).render("error", {
+    layout: "layouts/main",
+    title: "페이지를 찾을 수 없습니다",
+    message: "요청하신 페이지를 찾을 수 없습니다. (404)",
+  });
+});
+
+// 전역 에러 핸들러 (4-인자)
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).render("error", {
+    layout: "layouts/main",
+    title: "오류가 발생했습니다",
+    message: "서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+  });
+});
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
