@@ -62,6 +62,8 @@ app.use((req, res) => {
 
 // 전역 에러 핸들러 (4-인자)
 app.use((err, req, res, next) => {
+  // 이미 응답 헤더가 나간 경우 중복 응답 방지 — Express 기본 핸들러로 위임
+  if (res.headersSent) return next(err);
   console.error(err);
   res.status(err.status || 500).render("error", {
     layout: "layouts/main",
