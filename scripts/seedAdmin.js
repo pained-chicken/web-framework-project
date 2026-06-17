@@ -4,7 +4,7 @@
  * 사용법:
  *   ADMIN_USERNAME=admin ADMIN_PASSWORD=<password> node scripts/seedAdmin.js
  *
- * 환경변수 미지정 시 기본값(admin / REDACTED)을 사용합니다.
+ * ADMIN_USERNAME과 ADMIN_PASSWORD 환경변수를 반드시 설정해야 합니다.
  * 회원가입 라우트는 role='user'만 생성하므로, 관리자는 이 스크립트로 만듭니다.
  * 이미 같은 username이 있으면 role을 admin으로 승격합니다.
  */
@@ -13,8 +13,13 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("../src/models/User");
 
-const username = process.env.ADMIN_USERNAME || "admin";
-const password = process.env.ADMIN_PASSWORD || "<strong-password>";
+const username = process.env.ADMIN_USERNAME;
+const password = process.env.ADMIN_PASSWORD;
+
+if (!username || !password) {
+  console.error("오류: ADMIN_USERNAME과 ADMIN_PASSWORD 환경변수를 설정하세요.");
+  process.exit(1);
+}
 
 (async () => {
   try {
